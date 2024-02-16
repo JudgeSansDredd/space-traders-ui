@@ -10,6 +10,16 @@
     "format": "prettier --write 'src/**/*.ts' 'src/**/*.tsx'",
     "preview": "vite preview"
   },
+  "lint-staged": {
+    "src/*.ts?(x)": [
+      "eslint",
+      "prettier --write"
+    ],
+    "src/**/*.ts?(x)": [
+      "eslint",
+      "prettier --write"
+    ]
+  },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.1",
     "@tanstack/react-query": "^5.20.5",
