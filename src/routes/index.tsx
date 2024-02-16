@@ -1,12 +1,14 @@
 import { Route } from 'react-router-dom';
-import App from '../App';
 import MainLayout from '../layout/MainLayout';
+import Home from '../pages/Home';
+import Start from '../pages/Start';
 
 const routesFn = () => {
   return (
     <>
       <Route path="/" element={<MainLayout />}>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<Start />} />
       </Route>
     </>
   );

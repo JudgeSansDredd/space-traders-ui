@@ -1,9 +1,13 @@
 import { Outlet } from 'react-router-dom';
+import NavBar from './NavBar';
 
 export default function MainLayout() {
   return (
-    <div className="container mx-auto">
-      <Outlet />
-    </div>
+    <>
+      <NavBar />
+      <div className="container mx-auto">
+        <Outlet />
+      </div>
+    </>
   );
 }
