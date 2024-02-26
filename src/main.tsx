@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import axios from 'axios';
-import React from 'react';
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider as ReduxProvider } from 'react-redux';
 import {
@@ -23,12 +23,12 @@ if (authToken) {
 axios.defaults.baseURL = 'https://api.spacetraders.io/v2';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
+  <StrictMode>
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
         <ReactQueryDevtools />
       </QueryClientProvider>
     </ReduxProvider>
-  </React.StrictMode>
+  </StrictMode>
 );
