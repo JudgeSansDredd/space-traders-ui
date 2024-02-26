@@ -1,20 +1,23 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { AgentType } from '../../api/agent/types';
 
 export interface AuthState {
-  token: string | null;
+  agent: AgentType | null;
 }
 
-const initialState: AuthState = { token: null };
+const initialState: AuthState = {
+  agent: null,
+};
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setToken: (state, action: PayloadAction<string | null>) => {
-      state.token = action.payload;
+    setAgent: (state, action: PayloadAction<AgentType | null>) => {
+      state.agent = action.payload;
     },
   },
 });
 
-export const { setToken } = authSlice.actions;
+export const { setAgent } = authSlice.actions;
 export default authSlice.reducer;

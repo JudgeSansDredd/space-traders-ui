@@ -9,14 +9,17 @@
     "prepare": "git config core.hooksPath .githooks",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write 'src/**/*.ts' 'src/**/*.tsx'",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },
   "lint-staged": {
     "src/*.ts?(x)": [
+      "tsc --noEmit",
       "eslint",
       "prettier --write"
     ],
     "src/**/*.ts?(x)": [
+      "tsc --noEmit",
       "eslint",
       "prettier --write"
     ]

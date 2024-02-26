@@ -1,12 +1,17 @@
-export interface RegisterResponseType {
-  token: string;
-  agent: Agent;
-  contract: Contract;
-  faction: Faction;
-  ship: Ship;
+import { AgentType } from '../agent/types';
+
+export interface ShipReturnType {
+  data: ShipType[];
+  meta: Meta;
 }
 
-interface Ship {
+interface Meta {
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ShipType {
   symbol: string;
   nav: Nav;
   crew: Crew;
@@ -24,7 +29,12 @@ interface Ship {
 interface Cargo {
   capacity: number;
   units: number;
-  inventory: any[];
+  inventory: Inventory[];
+}
+
+interface Inventory {
+  good: string;
+  quantity: number;
 }
 
 interface Registration {
@@ -100,7 +110,7 @@ interface Cooldown {
   remainingSeconds: number;
 }
 
-interface Fuel {
+export interface Fuel {
   current: number;
   capacity: number;
   consumed: Consumed;
@@ -120,7 +130,7 @@ interface Crew {
   wages: number;
 }
 
-interface Nav {
+export interface Nav {
   systemSymbol: string;
   waypointSymbol: string;
   route: Route;
@@ -144,55 +154,45 @@ interface Departure {
   y: number;
 }
 
-interface Faction {
+export interface ExtractResponseType {
+  data: {
+    extraction: Extraction;
+    cooldown: Cooldown;
+    cargo: Cargo;
+  };
+}
+
+interface Cargo {
+  capacity: number;
+  units: number;
+  inventory: Inventory[];
+}
+
+interface Extraction {
+  shipSymbol: string;
+  yield: Yield;
+}
+
+interface Yield {
   symbol: string;
-  name: string;
-  description: string;
-  headquarters: string;
-  traits: Trait[];
-  isRecruiting: boolean;
+  units: number;
 }
 
-interface Trait {
-  symbol: string;
-  name: string;
-  description: string;
+export interface RefuelResponseType {
+  data: {
+    agent: AgentType;
+    fuel: Fuel;
+    transaction: Transaction;
+  };
 }
 
-interface Contract {
-  id: string;
-  factionSymbol: string;
-  type: string;
-  terms: Terms;
-  accepted: boolean;
-  fulfilled: boolean;
-  expiration: string;
-  deadlineToAccept: string;
-}
-
-interface Terms {
-  deadline: string;
-  payment: Payment;
-  deliver: Deliver[];
-}
-
-interface Deliver {
+interface Transaction {
+  waypointSymbol: string;
+  shipSymbol: string;
   tradeSymbol: string;
-  destinationSymbol: string;
-  unitsRequired: number;
-  unitsFulfilled: number;
-}
-
-interface Payment {
-  onAccepted: number;
-  onFulfilled: number;
-}
-
-interface Agent {
-  accountId: string;
-  symbol: string;
-  headquarters: string;
-  credits: number;
-  startingFaction: string;
-  shipCount: number;
+  type: string;
+  units: number;
+  pricePerUnit: number;
+  totalPrice: number;
+  timestamp: string;
 }

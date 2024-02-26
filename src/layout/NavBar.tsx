@@ -58,7 +58,7 @@ export default function NavBar() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/about" className={navLinkClassFn}>
+              <NavLink to="/auth" className={navLinkClassFn}>
                 Auth
               </NavLink>
             </li>
