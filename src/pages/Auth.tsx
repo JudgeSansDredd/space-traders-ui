@@ -1,17 +1,18 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { verifyToken } from '../api/agent';
 import { RegisterResponseType } from '../api/agent/types';
 import Agent from '../components/Agent';
-import { useAppDispatch } from '../store/hooks';
-import { setAgent } from '../store/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { setAgent, setToken } from '../store/slices/authSlice';
 
 export default function Auth() {
   const callsignRef = useRef<HTMLInputElement>(null);
   const factionRef = useRef<HTMLInputElement>(null);
+  const tokenRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
-  // const agent = useAppSelector((state) => state.auth.agent);
+  const authToken = useAppSelector((state) => state.auth.token);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const newTokenMutator = useMutation({
@@ -28,6 +29,7 @@ export default function Auth() {
     onSuccess: (data) => {
       setErrorMessage(null);
       dispatch(setAgent(data.data.agent));
+      dispatch(setToken(data.data.token));
       window.localStorage.setItem('space-traders-token', data.data.token);
       axios.defaults.headers.common['Authorization'] =
         `Bearer ${data.data.token}`;
@@ -42,10 +44,11 @@ export default function Auth() {
   });
 
   const verifyQuery = useQuery({
-    queryKey: ['verify'],
+    queryKey: ['verify', authToken],
     queryFn: () => {
       return verifyToken();
     },
+    enabled: !!authToken,
   });
 
   const formSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
@@ -56,70 +59,113 @@ export default function Auth() {
     newTokenMutator.mutate({ callsign, faction });
   };
 
+  const tokenSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    if (!tokenRef.current) return;
+    const token = tokenRef.current.value;
+    window.localStorage.setItem('space-traders-token', token);
+    dispatch(setToken(token));
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    verifyQuery.refetch();
+  };
+
   return (
     <>
-      {verifyQuery.isLoading && <p>Loading...</p>}
-      {verifyQuery.isError && (
-        <form className="max-w-sm mx-auto" onSubmit={formSubmit}>
-          <div className="mb-5">
-            <label
-              htmlFor="callsign"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Your Callsign
-            </label>
-            <input
-              ref={callsignRef}
-              type="text"
-              id="callsign"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="SP4CE_TR4DER"
-              required
-            />
-          </div>
-          <div className="mb-5">
-            <label
-              htmlFor="faction"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Your faction
-            </label>
-            <input
-              ref={factionRef}
-              type="text"
-              id="faction"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="COSMIC"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          >
-            Submit
-          </button>
-          {errorMessage && (
-            <div
-              className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
-              role="alert"
-            >
-              <svg
-                className="flex-shrink-0 inline w-4 h-4 me-3"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
+      {(verifyQuery.isLoading || verifyQuery.isFetching) && (
+        <p className="max-w-sm mx-auto">Loading...</p>
+      )}
+      {(verifyQuery.isPending || verifyQuery.isError) && (
+        <>
+          <form className="max-w-sm mx-auto" onSubmit={formSubmit}>
+            <div className="mb-5">
+              <label
+                htmlFor="callsign"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-              </svg>
-              <span className="sr-only">Info</span>
-              <div>
-                <span className="font-medium">Oops!</span> {errorMessage}
-              </div>
+                Your Callsign
+              </label>
+              <input
+                ref={callsignRef}
+                type="text"
+                id="callsign"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="SP4CE_TR4DER"
+                required
+              />
             </div>
-          )}
-        </form>
+            <div className="mb-5">
+              <label
+                htmlFor="faction"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Your faction
+              </label>
+              <input
+                ref={factionRef}
+                type="text"
+                id="faction"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="COSMIC"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              Submit
+            </button>
+            {errorMessage && (
+              <div
+                className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+                role="alert"
+              >
+                <svg
+                  className="flex-shrink-0 inline w-4 h-4 me-3"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                </svg>
+                <span className="sr-only">Info</span>
+                <div>
+                  <span className="font-medium">Oops!</span> {errorMessage}
+                </div>
+              </div>
+            )}
+          </form>
+
+          <div className="inline-flex items-center justify-center w-full">
+            <hr className="w-64 h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
+            <span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-white dark:bg-gray-900">
+              or
+            </span>
+          </div>
+          <form className="max-w-sm mx-auto" onSubmit={tokenSubmit}>
+            <div className="mb-5">
+              <label
+                htmlFor="auth-token"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Enter your token
+              </label>
+              <input
+                ref={tokenRef}
+                id="auth-token"
+                type="text"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              Submit
+            </button>
+          </form>
+        </>
       )}
       {verifyQuery.isSuccess && <Agent agent={verifyQuery.data} />}
     </>
