@@ -63,6 +63,11 @@ export default function NavBar() {
               </NavLink>
             </li>
             <li>
+              <NavLink to="/contracts" className={navLinkClassFn}>
+                Contracts
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/auth" className={navLinkClassFn}>
                 Auth
               </NavLink>
