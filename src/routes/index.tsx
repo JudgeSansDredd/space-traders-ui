@@ -1,6 +1,7 @@
 import { Route } from 'react-router-dom';
 import MainLayout from '../layout/MainLayout';
 import Auth from '../pages/Auth';
+import Contract from '../pages/Contract';
 import Contracts from '../pages/Contracts';
 import Ship from '../pages/Ship';
 import Cargo from '../pages/Ship/Cargo';
@@ -11,7 +12,9 @@ const routesFn = () => {
   return (
     <>
       <Route path="/" element={<MainLayout />}>
-        <Route path="contracts" element={<Contracts />} />
+        <Route path="contracts" element={<Contracts />}>
+          <Route path=":contractId" element={<Contract />} />
+        </Route>
         <Route path="ships" element={<Ships />}>
           <Route path=":shipSymbol" element={<Ship />}>
             <Route path="nav" element={<Navigation />} />

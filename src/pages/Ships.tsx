@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Outlet } from 'react-router';
+import { Outlet } from 'react-router-dom';
 import { getShips } from '../api/ship';
 import HomeLoginError from '../components/HomeLoginError';
 import ShipCard from '../components/ShipCard';

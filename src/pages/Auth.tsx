@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import React, { useRef, useState } from 'react';
 import { verifyToken } from '../api/agent';
@@ -11,6 +11,7 @@ export default function Auth() {
   const callsignRef = useRef<HTMLInputElement>(null);
   const factionRef = useRef<HTMLInputElement>(null);
   const tokenRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
   const authToken = useAppSelector((state) => state.auth.token);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -33,7 +34,7 @@ export default function Auth() {
       window.localStorage.setItem('space-traders-token', data.data.token);
       axios.defaults.headers.common['Authorization'] =
         `Bearer ${data.data.token}`;
-      verifyQuery.refetch();
+      queryClient.invalidateQueries({ queryKey: ['verify', authToken] });
     },
     onError: (error) => {
       console.log(error);
@@ -66,7 +67,7 @@ export default function Auth() {
     window.localStorage.setItem('space-traders-token', token);
     dispatch(setToken(token));
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    verifyQuery.refetch();
+    queryClient.invalidateQueries({ queryKey: ['verify', authToken] });
   };
 
   return (

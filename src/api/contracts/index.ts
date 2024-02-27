@@ -12,6 +12,11 @@ export const getContracts = async (): Promise<ContractType[]> => {
   return contracts;
 };
 
+export const getContract = async (id: string): Promise<ContractType> => {
+  const res = await axios.get<{ data: ContractType }>(`/my/contracts/${id}`);
+  return res.data.data;
+};
+
 export const acceptContract = async (id: string): Promise<ContractType> => {
   const res = await axios.post<ContractAcceptResponseType>(
     `/my/contracts/${id}/accept`
