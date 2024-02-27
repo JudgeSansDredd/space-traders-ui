@@ -1,18 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
 import { Outlet, useParams } from 'react-router-dom';
-import { getShip } from '../../api/ship';
+import { useShipQuery } from '../../api/hooks';
 import ButtonLink from '../../components/ButtonLink';
 
 export default function Ship() {
   const { shipSymbol } = useParams();
 
-  const shipQuery = useQuery({
-    queryKey: ['ship', shipSymbol],
-    queryFn: async () => {
-      return getShip(shipSymbol || '');
-    },
-    staleTime: 10 * 60 * 1000,
-  });
+  const shipQuery = useShipQuery(shipSymbol || '');
 
   return (
     <>
