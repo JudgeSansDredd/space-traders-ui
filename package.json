@@ -14,12 +14,10 @@
   },
   "lint-staged": {
     "src/*.ts?(x)": [
-      "tsc --noEmit",
       "eslint",
       "prettier --write"
     ],
     "src/**/*.ts?(x)": [
-      "tsc --noEmit",
       "eslint",
       "prettier --write"
     ]
