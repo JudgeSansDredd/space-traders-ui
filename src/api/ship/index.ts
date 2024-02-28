@@ -13,7 +13,10 @@ export const getShips = async (): Promise<ShipType[]> => {
   return ships;
 };
 
-export const getShip = async (shipId: string): Promise<ShipType> => {
+export const getShip = async (
+  shipId: string | undefined
+): Promise<ShipType | null> => {
+  if (!shipId) return null;
   const res = await axios.get<{ data: ShipType }>(`/my/ships/${shipId}`);
   return res.data.data;
 };
