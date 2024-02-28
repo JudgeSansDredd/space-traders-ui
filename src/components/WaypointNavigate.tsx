@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { WaypointType } from '../api/nav/types';
 import { navigate } from '../api/ship/navigate';
@@ -11,6 +11,7 @@ interface PropType {
 
 export default function WaypfointNavigate(props: PropType) {
   const { shipSymbol, waypoint } = props;
+  const queryClient = useQueryClient();
 
   const navigateMutator = useMutation({
     mutationKey: ['navigate', shipSymbol],
@@ -18,7 +19,8 @@ export default function WaypfointNavigate(props: PropType) {
       return navigate(shipSymbol, waypoint.symbol);
     },
     onSuccess: (data) => {
-      console.log(data);
+      queryClient.invalidateQueries({ queryKey: ['ships'] });
+      queryClient.invalidateQueries({ queryKey: ['ship', shipSymbol] });
     },
   });
 

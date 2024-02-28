@@ -1,11 +1,40 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { DateTime } from 'luxon';
 import { Outlet, useParams } from 'react-router-dom';
 import { useShipQuery } from '../../api/hooks';
+import { dock, orbit } from '../../api/ship/navigate';
+import Button from '../../components/Button';
 import ButtonLink from '../../components/ButtonLink';
+import { makeHumanReadable } from '../../utils';
 
 export default function Ship() {
   const { shipSymbol } = useParams();
+  const queryClient = useQueryClient();
 
   const shipQuery = useShipQuery(shipSymbol);
+
+  const dockMutation = useMutation({
+    mutationKey: ['docking', shipSymbol],
+    mutationFn: (action: 'orbit' | 'dock') => {
+      return action === 'orbit'
+        ? orbit(shipSymbol || '')
+        : dock(shipSymbol || '');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ships'] });
+      queryClient.invalidateQueries({ queryKey: ['ship', shipSymbol] });
+    },
+  });
+
+  const handleDockClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault();
+    dockMutation.mutate('dock');
+  };
+
+  const handleOrbitClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault();
+    dockMutation.mutate('orbit');
+  };
 
   return (
     <>
@@ -16,6 +45,9 @@ export default function Ship() {
             <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
               {shipQuery.data?.symbol}
             </h5>
+            <p className="text-sm text-gray-500 truncate dark:text-gray-400">
+              Status: {makeHumanReadable(shipQuery.data?.nav.status ?? '')}
+            </p>
           </div>
           <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             <li className="flex justify-between items-center py-3 sm:py-4 px-2">
@@ -29,6 +61,38 @@ export default function Ship() {
             <li className="flex justify-between items-center py-3 sm:py-4 px-2">
               <div>{`Location: ${shipQuery.data?.nav.waypointSymbol}`}</div>
               <ButtonLink to={`/ships/${shipSymbol}/nav`}>View Nav</ButtonLink>
+            </li>
+            {shipQuery.data?.nav.status === 'IN_TRANSIT' && (
+              <li className="flex justify-between items-center py-3 sm:py-4 px-2">
+                {`Arrival: ${DateTime.fromISO(shipQuery.data?.nav.route.arrival)
+                  .diffNow(['days', 'hours', 'minutes'])
+                  .toHuman({
+                    unitDisplay: 'short',
+                    maximumFractionDigits: 0,
+                  })}`}
+              </li>
+            )}
+            <li className="flex justify-between items-center py-3 sm:py-4 px-2">
+              {shipQuery.data?.nav.status === 'DOCKED' && (
+                <Button
+                  type="button"
+                  style="secondary"
+                  onClick={handleOrbitClick}
+                  disabled={dockMutation.isPending}
+                >
+                  To Orbit
+                </Button>
+              )}
+              {shipQuery.data?.nav.status === 'IN_ORBIT' && (
+                <Button
+                  type="button"
+                  style="secondary"
+                  onClick={handleDockClick}
+                  disabled={dockMutation.isPending}
+                >
+                  To Dock
+                </Button>
+              )}
             </li>
           </ul>
         </div>
