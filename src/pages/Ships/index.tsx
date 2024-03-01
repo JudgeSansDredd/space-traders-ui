@@ -1,27 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
 import { Outlet } from 'react-router-dom';
-import { getContracts } from '../api/contracts';
-import ContractCard from '../components/ContractCard';
-import HomeLoginError from '../components/HomeLoginError';
+import { getShips } from '../../api/ship';
+import HomeLoginError from '../../components/HomeLoginError';
+import ShipCard from '../../components/ShipCard';
 
-export default function Contracts() {
-  const contractsQuery = useQuery({
-    queryKey: ['contracts'],
+export default function Ship() {
+  const shipQuery = useQuery({
+    queryKey: ['ships'],
     queryFn: async () => {
-      return getContracts();
+      return getShips();
     },
     staleTime: 10 * 60 * 1000,
   });
 
   return (
     <>
-      {contractsQuery.isLoading && <div>Loading...</div>}
-      {contractsQuery.isError && <HomeLoginError />}
+      {shipQuery.isLoading && <div>Loading...</div>}
+      {shipQuery.isError && <HomeLoginError />}
       <div className="flex overflow-y-auto space-x-2">
         <div className="w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
             <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
-              Contracts
+              Ships
             </h5>
           </div>
           <div className="flow-root">
@@ -29,9 +29,9 @@ export default function Contracts() {
               role="list"
               className="divide-y divide-gray-200 dark:divide-gray-700"
             >
-              {contractsQuery.isSuccess &&
-                contractsQuery.data.map((contract) => {
-                  return <ContractCard key={contract.id} contract={contract} />;
+              {shipQuery.isSuccess &&
+                shipQuery.data.map((ship) => {
+                  return <ShipCard key={ship.symbol} ship={ship} />;
                 })}
             </ul>
           </div>
