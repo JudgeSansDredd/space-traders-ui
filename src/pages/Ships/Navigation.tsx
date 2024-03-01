@@ -14,7 +14,7 @@ export default function Navigation() {
 
   return (
     <>
-      <div className="container mx-auto flex">
+      <div className="flex">
         <div className="w-full max-w-md p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
           <div className="flex items-center justify-between mb-4">
             <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
@@ -43,7 +43,10 @@ export default function Navigation() {
           </ul>
         </div>
         <div className="w-full">
-          <SystemMap waypoints={systemWaypointsQuery.data?.data || []} />
+          <SystemMap
+            waypoints={systemWaypointsQuery.data?.data || []}
+            ship={shipQuery.data}
+          />
         </div>
       </div>
     </>

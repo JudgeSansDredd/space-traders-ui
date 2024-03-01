@@ -1,12 +1,15 @@
 import { WaypointType } from '../../api/navigate/types';
+import { ShipType } from '../../api/ship/types';
+import Ship from './Ship';
 import Waypoint from './Waypoint';
 
 interface PropType {
   waypoints: WaypointType[];
+  ship?: ShipType | null;
 }
 
 export default function SystemMap(props: PropType) {
-  const { waypoints } = props;
+  const { waypoints, ship } = props;
 
   if (waypoints.length === 0) {
     return <div className="w-full">No Waypoints Provided</div>;
@@ -29,6 +32,7 @@ export default function SystemMap(props: PropType) {
           />
         );
       })}
+      {ship && <Ship ship={ship} minX={minX} minY={minY} />}
     </svg>
   );
 }

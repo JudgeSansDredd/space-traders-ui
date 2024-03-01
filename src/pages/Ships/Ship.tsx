@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import React from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { useShipQuery, useWaypointsQuery } from '../../api/hooks';
+import { refuel } from '../../api/ship';
 import { dock, orbit } from '../../api/ship/navigate';
 import Button from '../../components/Button';
 import ButtonLink from '../../components/ButtonLink';
@@ -28,7 +29,17 @@ export default function Ship() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ships'] });
-      queryClient.invalidateQueries({ queryKey: ['ship', shipSymbol] });
+    },
+  });
+
+  const refuelMutation = useMutation({
+    mutationKey: ['refuel', shipSymbol],
+    mutationFn: () => {
+      return refuel(shipSymbol || '');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ships'] });
+      queryClient.invalidateQueries({ queryKey: ['verify'] });
     },
   });
 
@@ -40,6 +51,11 @@ export default function Ship() {
   const handleOrbitClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     dockMutation.mutate('orbit');
+  };
+
+  const handleRefuelClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault();
+    refuelMutation.mutate();
   };
 
   return (
@@ -93,14 +109,23 @@ export default function Ship() {
             )}
             <li className="flex justify-between items-center py-3 sm:py-4 px-2">
               {shipQuery.data?.nav.status === 'DOCKED' && (
-                <Button
-                  type="button"
-                  style="secondary"
-                  onClick={handleOrbitClick}
-                  disabled={dockMutation.isPending}
-                >
-                  To Orbit
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    style="secondary"
+                    onClick={handleOrbitClick}
+                    disabled={dockMutation.isPending}
+                  >
+                    To Orbit
+                  </Button>
+                  <Button
+                    type="button"
+                    style="yellow"
+                    onClick={handleRefuelClick}
+                  >
+                    Refuel
+                  </Button>
+                </>
               )}
               {shipQuery.data?.nav.status === 'IN_ORBIT' && (
                 <Button
