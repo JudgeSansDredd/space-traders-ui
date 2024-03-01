@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
+import React from 'react';
 import { Outlet, useParams } from 'react-router-dom';
-import { useShipQuery } from '../../api/hooks';
+import { useShipQuery, useWaypointsQuery } from '../../api/hooks';
 import { dock, orbit } from '../../api/ship/navigate';
 import Button from '../../components/Button';
 import ButtonLink from '../../components/ButtonLink';
@@ -12,6 +13,11 @@ export default function Ship() {
   const queryClient = useQueryClient();
 
   const shipQuery = useShipQuery(shipSymbol);
+  const waypointQuery = useWaypointsQuery(shipQuery.data?.nav.systemSymbol);
+
+  const waypoint = waypointQuery.data?.data.find(
+    (waypoint) => waypoint.symbol === shipQuery.data?.nav.waypointSymbol
+  );
 
   const dockMutation = useMutation({
     mutationKey: ['docking', shipSymbol],
@@ -59,7 +65,20 @@ export default function Ship() {
               </ButtonLink>
             </li>
             <li className="flex justify-between items-center py-3 sm:py-4 px-2">
-              <div>{`Location: ${shipQuery.data?.nav.waypointSymbol}`}</div>
+              <div>
+                <div>{`Location: ${shipQuery.data?.nav.waypointSymbol}`}</div>
+                {waypoint?.traits.map((trait) => {
+                  return (
+                    <p
+                      key={trait.symbol}
+                      className="text-sm text-gray-500 truncate dark:text-gray-400"
+                      title={trait.description}
+                    >
+                      {trait.name}
+                    </p>
+                  );
+                })}
+              </div>
               <ButtonLink to={`/ships/${shipSymbol}/nav`}>View Nav</ButtonLink>
             </li>
             {shipQuery.data?.nav.status === 'IN_TRANSIT' && (

@@ -1,7 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { useShipQuery } from '../../api/hooks';
-import { getWaypointsInSystem } from '../../api/nav';
+import { useShipQuery, useWaypointsQuery } from '../../api/hooks';
 import ButtonLink from '../../components/ButtonLink';
 import WaypointNavigate from '../../components/WaypointNavigate';
 
@@ -11,13 +9,7 @@ export default function Navigation() {
   const shipQuery = useShipQuery(shipSymbol);
   const systemSymbol = shipQuery.data?.nav.systemSymbol;
 
-  const systemWaypointsQuery = useQuery({
-    queryKey: ['systemWaypoints', systemSymbol],
-    queryFn: async () => {
-      return getWaypointsInSystem(systemSymbol);
-    },
-    staleTime: 1000 * 60 * 5,
-  });
+  const systemWaypointsQuery = useWaypointsQuery(systemSymbol);
 
   return (
     <>
@@ -36,6 +28,9 @@ export default function Navigation() {
                   key={waypoint.symbol}
                   shipSymbol={shipQuery.data ? shipQuery.data.symbol : ''}
                   waypoint={waypoint}
+                  disabled={
+                    waypoint.symbol === shipQuery.data?.nav.waypointSymbol
+                  }
                 />
               );
             })}

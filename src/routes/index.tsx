@@ -20,7 +20,6 @@ const routesFn = () => {
             <Route path="nav" element={<Navigation />} />
             <Route path="cargo" element={<Cargo />} />
           </Route>
-          R
         </Route>
         <Route path="/auth" element={<Auth />} />
       </Route>
