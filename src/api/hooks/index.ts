@@ -4,7 +4,7 @@ import { getShip } from '../ship';
 
 export const useShipQuery = (shipSymbol: string | undefined) => {
   const shipQuery = useQuery({
-    queryKey: ['ship', shipSymbol],
+    queryKey: ['ships', shipSymbol],
     queryFn: async () => {
       return getShip(shipSymbol);
     },

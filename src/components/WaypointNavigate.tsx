@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { WaypointType } from '../api/navigate/types';
 import { navigate } from '../api/ship/navigate';
+import { makeHumanReadable } from '../utils';
 import Button from './Button';
 
 interface PropType {
@@ -21,7 +22,6 @@ export default function WaypfointNavigate(props: PropType) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ships'] });
-      queryClient.invalidateQueries({ queryKey: ['ship', shipSymbol] });
     },
   });
 
@@ -34,6 +34,9 @@ export default function WaypfointNavigate(props: PropType) {
     <li className="flex justify-between items-center py-3 sm:py-4 px-2">
       <div>
         <div>{waypoint.symbol}</div>
+        <p className="text-sm text-gray-500 truncate dark:text-gray-400">
+          {makeHumanReadable(waypoint.type)}
+        </p>
         {waypoint.traits.map((trait) => {
           return (
             <p
