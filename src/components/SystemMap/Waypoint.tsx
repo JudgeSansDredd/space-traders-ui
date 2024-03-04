@@ -14,13 +14,15 @@ export default function Waypoint(props: PropType) {
 
   const x = waypoint.x - minX + 30;
   const y = waypoint.y - minY + 30;
-  const tooltipText = makeHumanReadable(waypoint.type);
+  const tooltipTextLine1 = makeHumanReadable(waypoint.type);
+  const tooltipTextLine2 = waypoint.symbol;
   const tooltipX = x + 10;
   const tooltipY = y - 10;
-  const tooltipHeight = 30;
-  const tooltipWidth = tooltipText.length * 8 + 10;
+  const tooltipHeight = 44;
+  const tooltipWidth =
+    Math.max(tooltipTextLine1.length, tooltipTextLine2.length) * 8 + 10;
   const tooltipTextX = tooltipX + tooltipWidth / 2;
-  const tooltipTextY = tooltipY + tooltipHeight / 2;
+  const tooltipTextY = tooltipY + tooltipHeight / 2 - 7;
 
   const colors = {
     planet: 'fill-green-500',
@@ -81,7 +83,19 @@ export default function Waypoint(props: PropType) {
         fill="black"
         className={tooltipHidden ? 'hidden' : ''}
       >
-        {tooltipText}
+        {tooltipTextLine1}
+      </text>
+      <text
+        x={tooltipTextX}
+        y={tooltipTextY + 14}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontSize={12}
+        fontWeight="bold"
+        fill="black"
+        className={tooltipHidden ? 'hidden' : ''}
+      >
+        {tooltipTextLine2}
       </text>
     </>
   );

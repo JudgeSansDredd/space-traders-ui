@@ -1,17 +1,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { useShipQuery, useWaypointsQuery } from '../../api/hooks';
 import { refuel } from '../../api/ship';
 import { dock, orbit } from '../../api/ship/navigate';
 import Button from '../../components/Button';
 import ButtonLink from '../../components/ButtonLink';
+import Info from '../../components/Info';
 import { makeHumanReadable } from '../../utils';
 
 export default function Ship() {
   const { shipSymbol } = useParams();
   const queryClient = useQueryClient();
+  const [showDockingAlert, setShowDockingAlert] = useState<boolean>(false);
+  const [showRefuelAlert, setShowRefuelAlert] = useState<boolean>(false);
 
   const shipQuery = useShipQuery(shipSymbol);
   const waypointQuery = useWaypointsQuery(shipQuery.data?.nav.systemSymbol);
@@ -29,6 +32,7 @@ export default function Ship() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ships'] });
+      setShowDockingAlert(true);
     },
   });
 
@@ -40,6 +44,7 @@ export default function Ship() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ships'] });
       queryClient.invalidateQueries({ queryKey: ['verify'] });
+      setShowRefuelAlert(true);
     },
   });
 
@@ -138,6 +143,24 @@ export default function Ship() {
                 </Button>
               )}
             </li>
+            {showDockingAlert && dockMutation.isSuccess && (
+              <li>
+                <Info
+                  text={`The ship has successfully ${dockMutation.variables === 'orbit' ? 'orbited' : 'docked'}.`}
+                  visible={showDockingAlert}
+                  dismissClick={() => setShowDockingAlert(false)}
+                />
+              </li>
+            )}
+            {showRefuelAlert && refuelMutation.isSuccess && (
+              <li>
+                <Info
+                  text={`The ship has successfully refueled. You spent ${refuelMutation.data?.transaction.totalPrice} credits`}
+                  visible={showRefuelAlert}
+                  dismissClick={() => setShowRefuelAlert(false)}
+                />
+              </li>
+            )}
           </ul>
         </div>
       )}

@@ -1,5 +1,7 @@
+import { DateTime } from 'luxon';
 import { WaypointType } from '../../api/navigate/types';
 import { ShipType } from '../../api/ship/types';
+import Route from './Route';
 import Ship from './Ship';
 import Waypoint from './Waypoint';
 
@@ -33,6 +35,11 @@ export default function SystemMap(props: PropType) {
         );
       })}
       {ship && <Ship ship={ship} minX={minX} minY={minY} />}
+      {ship &&
+        ship.nav.route &&
+        DateTime.fromISO(ship.nav.route.arrival).diffNow().milliseconds > 0 && (
+          <Route route={ship.nav.route} minX={minX} minY={minY} />
+        )}
     </svg>
   );
 }

@@ -47,7 +47,7 @@ export default function Ship(props: PropType) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [ship.nav.route.destination.x, ship.nav.route.destination.y]);
 
   // calculate a heading
   const angle = Math.atan2(-1 * dy, dx) * (180 / Math.PI); // Math degrees (y works differently in math, high is up, low is down)

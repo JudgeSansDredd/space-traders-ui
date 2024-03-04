@@ -133,12 +133,12 @@ interface Crew {
 export interface Nav {
   systemSymbol: string;
   waypointSymbol: string;
-  route: Route;
+  route: RouteType;
   status: string;
   flightMode: string;
 }
 
-interface Route {
+export interface RouteType {
   departure: Departure;
   origin: Departure;
   destination: Departure;
