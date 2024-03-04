@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { WaypointType } from '../../api/navigate/types';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { setWaypoint } from '../../store/slices/navSlice';
 import { makeHumanReadable } from '../../utils';
 
 interface PropType {
@@ -9,6 +11,9 @@ interface PropType {
 }
 
 export default function Waypoint(props: PropType) {
+  const selectedWaypoint = useAppSelector((state) => state.nav.waypoint);
+  const dispatch = useAppDispatch();
+
   const { minX, minY, waypoint } = props;
   const [tooltipHidden, setTooltipHidden] = useState<boolean>(true);
 
@@ -46,11 +51,13 @@ export default function Waypoint(props: PropType) {
   const waypointMouseEnter = (e: React.MouseEvent<SVGCircleElement>) => {
     e.preventDefault();
     setTooltipHidden(false);
+    dispatch(setWaypoint(waypoint.symbol));
   };
 
   const waypointMouseLeave = (e: React.MouseEvent<SVGCircleElement>) => {
     e.preventDefault();
     setTooltipHidden(true);
+    dispatch(setWaypoint(null));
   };
 
   return (
@@ -59,7 +66,7 @@ export default function Waypoint(props: PropType) {
         className={getColor(waypoint.type)}
         cx={x}
         cy={y}
-        r={5}
+        r={selectedWaypoint === waypoint.symbol ? 8 : 4}
         onMouseEnter={waypointMouseEnter}
         onMouseLeave={waypointMouseLeave}
       />

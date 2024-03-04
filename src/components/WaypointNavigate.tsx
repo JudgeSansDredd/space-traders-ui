@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { WaypointType } from '../api/navigate/types';
 import { navigate } from '../api/ship/navigate';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { setWaypoint } from '../store/slices/navSlice';
 import { makeHumanReadable } from '../utils';
 import Button from './Button';
 
@@ -14,6 +16,8 @@ interface PropType {
 export default function WaypfointNavigate(props: PropType) {
   const { shipSymbol, waypoint, disabled } = props;
   const queryClient = useQueryClient();
+  const selectedWaypoint = useAppSelector((state) => state.nav.waypoint);
+  const dispatch = useAppDispatch();
 
   const navigateMutator = useMutation({
     mutationKey: ['navigate', shipSymbol],
@@ -30,8 +34,22 @@ export default function WaypfointNavigate(props: PropType) {
     navigateMutator.mutate();
   };
 
+  const onMouseEnter: MouseEventHandler<HTMLLIElement> = (e) => {
+    e.preventDefault();
+    dispatch(setWaypoint(waypoint.symbol));
+  };
+
+  const onMouseLeave: MouseEventHandler<HTMLLIElement> = (e) => {
+    e.preventDefault();
+    dispatch(setWaypoint(null));
+  };
+
   return (
-    <li className="flex justify-between items-center py-3 sm:py-4 px-2">
+    <li
+      className={`flex justify-between items-center py-3 sm:py-4 px-2 ${selectedWaypoint === waypoint.symbol ? 'bg-blue-200 dark:bg-slate-700' : ''}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <div>
         <div>{waypoint.symbol}</div>
         <p className="text-sm text-gray-500 truncate dark:text-gray-400">

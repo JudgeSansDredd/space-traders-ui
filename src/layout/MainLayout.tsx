@@ -5,7 +5,7 @@ export default function MainLayout() {
   return (
     <>
       <NavBar />
-      <div className="container mx-auto">
+      <div className="container mx-auto h-full">
         <Outlet />
       </div>
     </>
