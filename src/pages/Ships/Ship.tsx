@@ -117,7 +117,7 @@ export default function Ship() {
                 <>
                   <Button
                     type="button"
-                    style="secondary"
+                    color="secondary"
                     onClick={handleOrbitClick}
                     disabled={dockMutation.isPending}
                   >
@@ -125,7 +125,7 @@ export default function Ship() {
                   </Button>
                   <Button
                     type="button"
-                    style="yellow"
+                    color="yellow"
                     onClick={handleRefuelClick}
                   >
                     Refuel
@@ -135,7 +135,7 @@ export default function Ship() {
               {shipQuery.data?.nav.status === 'IN_ORBIT' && (
                 <Button
                   type="button"
-                  style="secondary"
+                  color="secondary"
                   onClick={handleDockClick}
                   disabled={dockMutation.isPending}
                 >

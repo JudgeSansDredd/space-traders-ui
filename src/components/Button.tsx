@@ -20,14 +20,14 @@ const styleClasses = {
 interface PropType extends React.HTMLProps<HTMLButtonElement> {
   type: 'button' | 'submit';
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
-  style?: keyof typeof styleClasses;
+  color?: keyof typeof styleClasses;
 }
 
 export default function Button(props: React.PropsWithChildren<PropType>) {
-  const { children, style, ...buttonProps } = props;
+  const { children, color, ...buttonProps } = props;
 
   return (
-    <button className={styleClasses[style ?? 'primary']} {...buttonProps}>
+    <button className={styleClasses[color ?? 'primary']} {...buttonProps}>
       {children}
     </button>
   );

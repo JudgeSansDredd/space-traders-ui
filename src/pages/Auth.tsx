@@ -5,17 +5,15 @@ import { verifyToken } from '../api/agent';
 import { RegisterResponseType } from '../api/agent/types';
 import Agent from '../components/Agent';
 import Button from '../components/Button';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setAgent, setToken } from '../store/slices/authSlice';
 
 export default function Auth() {
   const callsignRef = useRef<HTMLInputElement>(null);
   const factionRef = useRef<HTMLInputElement>(null);
   const tokenRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
-  const dispatch = useAppDispatch();
-  const authToken = useAppSelector((state) => state.auth.token);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const authToken = window.localStorage.getItem('space-traders-token');
 
   const newTokenMutator = useMutation({
     mutationKey: ['newToken'],
@@ -30,12 +28,9 @@ export default function Auth() {
     },
     onSuccess: (data) => {
       setErrorMessage(null);
-      dispatch(setAgent(data.data.agent));
-      dispatch(setToken(data.data.token));
       window.localStorage.setItem('space-traders-token', data.data.token);
       axios.defaults.headers.common['Authorization'] =
         `Bearer ${data.data.token}`;
-      queryClient.invalidateQueries({ queryKey: ['verify', authToken] });
     },
     onError: (error) => {
       console.log(error);
@@ -66,7 +61,6 @@ export default function Auth() {
     if (!tokenRef.current) return;
     const token = tokenRef.current.value;
     window.localStorage.setItem('space-traders-token', token);
-    dispatch(setToken(token));
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     queryClient.invalidateQueries({ queryKey: ['verify', authToken] });
   };
