@@ -1,8 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import React, { useRef, useState } from 'react';
-import { verifyToken } from '../api/agent';
 import { RegisterResponseType } from '../api/agent/types';
+import { useVerifyQuery } from '../api/hooks';
 import Agent from '../components/Agent';
 import Button from '../components/Button';
 
@@ -40,13 +40,7 @@ export default function Auth() {
     },
   });
 
-  const verifyQuery = useQuery({
-    queryKey: ['verify', authToken],
-    queryFn: () => {
-      return verifyToken();
-    },
-    enabled: !!authToken,
-  });
+  const verifyQuery = useVerifyQuery(authToken);
 
   const formSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();

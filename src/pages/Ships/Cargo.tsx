@@ -24,10 +24,10 @@ export default function Cargo() {
                 role="list"
                 className="divide-y divide-gray-200 dark:divide-gray-700"
               >
-                {shipQuery.data?.cargo.inventory.map((item) => {
+                {shipQuery.data.cargo.inventory.map((item) => {
                   return (
-                    <div role="listitem">
-                      <strong>{item.good}: </strong> {item.quantity}
+                    <div role="listitem" key={item.symbol}>
+                      <strong>{item.name}: </strong> {item.units}
                     </div>
                   );
                 })}

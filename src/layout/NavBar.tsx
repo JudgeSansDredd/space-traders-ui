@@ -1,5 +1,6 @@
 import 'flowbite';
 import { NavLink } from 'react-router-dom';
+import { useVerifyQuery } from '../api/hooks';
 
 export default function NavBar() {
   const activeClass =
@@ -14,6 +15,9 @@ export default function NavBar() {
     return Object.values(params).some(Boolean) ? activeClass : inactiveClass;
   };
 
+  const authToken = window.localStorage.getItem('space-traders-token');
+  const verifyQuery = useVerifyQuery(authToken);
+
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -26,6 +30,8 @@ export default function NavBar() {
             Space Trader
           </span>
         </NavLink>
+        <div>{verifyQuery.data?.symbol}</div>
+        <div>{`${verifyQuery.data?.credits.toLocaleString()} Credits`}</div>
         <button
           data-collapse-toggle="navbar-default"
           type="button"

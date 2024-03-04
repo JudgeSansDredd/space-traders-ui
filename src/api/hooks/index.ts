@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { verifyToken } from '../agent';
 import { getWaypointsInSystem } from '../navigate';
 import { getShip } from '../ship';
 
@@ -8,7 +9,7 @@ export const useShipQuery = (shipSymbol: string | undefined) => {
     queryFn: async () => {
       return getShip(shipSymbol);
     },
-    refetchInterval: 30 * 1000,
+    staleTime: 1000 * 60 * 5,
   });
 
   return shipQuery;
@@ -24,4 +25,17 @@ export const useWaypointsQuery = (systemSymbol: string | undefined) => {
   });
 
   return waypointsQuery;
+};
+
+export const useVerifyQuery = (authToken: string | null) => {
+  const verifyQuery = useQuery({
+    queryKey: ['verify', authToken],
+    queryFn: () => {
+      return verifyToken();
+    },
+    enabled: !!authToken,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  return verifyQuery;
 };

@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { useShipQuery, useWaypointsQuery } from '../../api/hooks';
-import { refuel } from '../../api/ship';
+import { extract, refuel } from '../../api/ship';
 import { dock, orbit } from '../../api/ship/navigate';
 import Button from '../../components/Button';
 import ButtonLink from '../../components/ButtonLink';
 import Info from '../../components/Info';
+import TimedProgress from '../../components/TimedProgress';
 import { makeHumanReadable } from '../../utils';
 
 export default function Ship() {
@@ -15,6 +16,11 @@ export default function Ship() {
   const queryClient = useQueryClient();
   const [showDockingAlert, setShowDockingAlert] = useState<boolean>(false);
   const [showRefuelAlert, setShowRefuelAlert] = useState<boolean>(false);
+  const [cooldownTime, setCooldownTime] = useState<{
+    start: string;
+    end: string;
+  } | null>(null);
+  const [showTransit, setShowTransit] = useState<boolean>(false);
 
   const shipQuery = useShipQuery(shipSymbol);
   const waypointQuery = useWaypointsQuery(shipQuery.data?.nav.systemSymbol);
@@ -22,6 +28,20 @@ export default function Ship() {
   const waypoint = waypointQuery.data?.data.find(
     (waypoint) => waypoint.symbol === shipQuery.data?.nav.waypointSymbol
   );
+
+  useEffect(() => {
+    if (shipQuery.data?.cooldown.remainingSeconds) {
+      const now = DateTime.now();
+      setCooldownTime({
+        start: now.toISO(),
+        end: now
+          .plus({
+            seconds: shipQuery.data.cooldown.remainingSeconds,
+          })
+          .toISO(),
+      });
+    }
+  }, [shipQuery.data?.cooldown.remainingSeconds]);
 
   const dockMutation = useMutation({
     mutationKey: ['docking', shipSymbol],
@@ -48,6 +68,17 @@ export default function Ship() {
     },
   });
 
+  const extractMutation = useMutation({
+    mutationKey: ['extract', shipSymbol],
+    mutationFn: () => {
+      return extract(shipSymbol || '');
+    },
+    onSuccess: (data) => {
+      const { remainingSeconds } = data.cooldown;
+      queryClient.invalidateQueries({ queryKey: ['ships'] });
+    },
+  });
+
   const handleDockClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     dockMutation.mutate('dock');
@@ -62,6 +93,38 @@ export default function Ship() {
     e.preventDefault();
     refuelMutation.mutate();
   };
+
+  const handleExtractClick: React.MouseEventHandler<HTMLButtonElement> = (
+    e
+  ) => {
+    e.preventDefault();
+    extractMutation.mutate();
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!shipQuery.data) {
+        setShowTransit(false);
+        return () => clearInterval(interval);
+      }
+      const arrival = DateTime.fromISO(shipQuery.data.nav.route.arrival);
+      setShowTransit(arrival > DateTime.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [shipQuery.data?.nav.route.arrival]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (cooldownTime) {
+        const now = DateTime.now();
+        const end = DateTime.fromISO(cooldownTime.end);
+        if (now > end) {
+          setCooldownTime(null);
+        }
+      }
+    });
+    return () => clearInterval(interval);
+  }, [cooldownTime]);
 
   return (
     <>
@@ -102,14 +165,22 @@ export default function Ship() {
               </div>
               <ButtonLink to={`/ships/${shipSymbol}/nav`}>View Nav</ButtonLink>
             </li>
-            {shipQuery.data?.nav.status === 'IN_TRANSIT' && (
+            {shipQuery.data && showTransit && (
               <li className="flex justify-between items-center py-3 sm:py-4 px-2">
-                {`Arrival: ${DateTime.fromISO(shipQuery.data?.nav.route.arrival)
-                  .diffNow(['days', 'hours', 'minutes'])
-                  .toHuman({
-                    unitDisplay: 'short',
-                    maximumFractionDigits: 0,
-                  })}`}
+                <div className="mr-2">Transit</div>
+                <TimedProgress
+                  startTime={shipQuery.data.nav.route.departureTime}
+                  endTime={shipQuery.data.nav.route.arrival}
+                />
+              </li>
+            )}
+            {cooldownTime && (
+              <li className="flex justify-between items-center py-3 sm:py-4 px-2">
+                <div className="mr-2">Cooldown</div>
+                <TimedProgress
+                  startTime={cooldownTime.start}
+                  endTime={cooldownTime.end}
+                />
               </li>
             )}
             <li className="flex justify-between items-center py-3 sm:py-4 px-2">
@@ -133,14 +204,26 @@ export default function Ship() {
                 </>
               )}
               {shipQuery.data?.nav.status === 'IN_ORBIT' && (
-                <Button
-                  type="button"
-                  color="secondary"
-                  onClick={handleDockClick}
-                  disabled={dockMutation.isPending}
-                >
-                  To Dock
-                </Button>
+                <>
+                  <Button
+                    type="button"
+                    color="secondary"
+                    onClick={handleDockClick}
+                    disabled={dockMutation.isPending}
+                  >
+                    To Dock
+                  </Button>
+                  <Button
+                    type="button"
+                    color="green"
+                    onClick={handleExtractClick}
+                    disabled={
+                      extractMutation.isPending || cooldownTime !== null
+                    }
+                  >
+                    Extract
+                  </Button>
+                </>
               )}
             </li>
             {showDockingAlert && dockMutation.isSuccess && (

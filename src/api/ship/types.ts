@@ -33,8 +33,10 @@ interface Cargo {
 }
 
 interface Inventory {
-  good: string;
-  quantity: number;
+  description: string;
+  name: string;
+  symbol: string;
+  units: number;
 }
 
 interface Registration {
