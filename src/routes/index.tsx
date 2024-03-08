@@ -3,6 +3,7 @@ import MainLayout from '../layout/MainLayout';
 import Auth from '../pages/Auth';
 import Contracts from '../pages/Contracts';
 import Contract from '../pages/Contracts/Contract';
+import Market from '../pages/Market';
 import Ships from '../pages/Ships';
 import Cargo from '../pages/Ships/Cargo';
 import Navigation from '../pages/Ships/Navigation';
@@ -12,8 +13,9 @@ const routesFn = () => {
   return (
     <>
       <Route path="/" element={<MainLayout />}>
+        <Route path="market" element={<Market />} />
         <Route path="contracts" element={<Contracts />}>
-          <Route path=":contractId" element={<Contract />} />
+          <Route path=":contractId" element={<Contract />} />R
         </Route>
         <Route path="ships" element={<Ships />}>
           <Route path=":shipSymbol" element={<Ship />}>

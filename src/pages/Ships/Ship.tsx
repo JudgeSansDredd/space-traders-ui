@@ -73,8 +73,7 @@ export default function Ship() {
     mutationFn: () => {
       return extract(shipSymbol || '');
     },
-    onSuccess: (data) => {
-      const { remainingSeconds } = data.cooldown;
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ships'] });
     },
   });
