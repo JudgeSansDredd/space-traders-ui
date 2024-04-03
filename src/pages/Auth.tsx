@@ -147,7 +147,9 @@ export default function Auth() {
           </form>
         </>
       )}
-      {verifyQuery.isSuccess && <Agent agent={verifyQuery.data} />}
+      {verifyQuery.isSuccess && (
+        <Agent agent={verifyQuery.data} authToken={authToken} />
+      )}
     </>
   );
 }
