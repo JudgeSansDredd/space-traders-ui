@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: space-traders-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: lets-encrypt
+spec:
+  ingressClassName: public
+  tls:
+    - hosts:
+        - space-traders.pixelparasol.com
+      secretName: space-traders-ingress-tls
+  rules:
+    - host: space-traders.pixelparasol.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: space-traders-service
+                port:
+                  number: 80

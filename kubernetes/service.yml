@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: space-traders-service
+  labels:
+    tenant: space-traders
+spec:
+  type: ClusterIP
+  selector:
+    app: space-traders
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000

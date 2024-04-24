@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: space-traders
+  labels:
+    tenant: space-traders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: space-traders
+      tenant: space-traders
+  template:
+    metadata:
+      labels:
+        app: space-traders
+        tenant: space-traders
+    spec:
+      # imagePullSecrets:
+      #   - name: gitea-auth
+      hostname: space-traders
+      containers:
+        - name: space-traders
+          image: node:18.20.0-alpine
+          # image: gitea.pixelparasol.com/pixel-parasol/space-traders:latest
+          command: ['sleep']
+          args: ['infinity']
+          resources: {}
+          # envFrom:
+          #   - secretRef:
+          #       name: redis
+          #   - secretRef:
+          #       name: space-traders
+          env:
+            - name: SPACETRADERS_DOMAIN
+              value: https://space-traders.pixelparasol.com
+            - name: SPACETRADERS_PORT
+              value: '8000'
+          ports:
+            - containerPort: 8000
